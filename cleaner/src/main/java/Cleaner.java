@@ -1,9 +1,6 @@
 import jakarta.jms.*;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
-import java.io.File;
-import java.io.IOException;
-
 public class Cleaner {
 
     public static void cleanBooks(){
@@ -18,7 +15,8 @@ public class Cleaner {
             Queue queue = session.createQueue("CleanerQueue");
             QueueReceiver receiver = session.createReceiver(queue);
 
-            while (true) {
+            if (receiver != null) {
+                try {
                 Message message = receiver.receive();
 
                 if (message instanceof ObjectMessage) {
@@ -33,11 +31,15 @@ public class Cleaner {
 
                     String metadata = meta.extractData(filename);
                     meta.storeData(metadata, filename);
+
+                    message.acknowledge();
                 }
+                } catch (Exception e) {
+                    System.out.println("Moving to the next file.\n");
+                }
+
             }
         } catch (JMSException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
             if (connection != null) {

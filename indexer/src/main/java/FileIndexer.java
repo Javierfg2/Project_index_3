@@ -1,75 +1,54 @@
-
-import com.google.gson.Gson;
 import java.io.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public class FileIndexer {
 
-    Gson gson = new Gson();
-
     public FileIndexer(File file, String datamart) {
-
         String[] words = Utils.fileCleaner(file);
+        Set<String> usualWords = new HashSet<>();
 
         for (String word : words) {
             word = word.replace(" ", "");
 
-            if ((word.length() >= 3 && !Pattern.matches("^(nul|con|aux|prn).*", word))) {
+            if (word.length() >= 3 && !usualWords.contains(word) && !Pattern.matches("^(nul|con|aux|prn).*", word)) {
+                String fileName = word + ".txt";
+                String route = datamart + "/" + word.substring(0, 1) + "/" + word.substring(0, 2) + "/"
+                        + word.substring(0, 3) + "/" + fileName;
+                usualWords.add(word);
 
-                String route =  datamart + "/" + word.substring(0,1) + "/" + word.substring(0,2) + "/"
-                        + word.substring(0,3) + "/" + word + ".txt";
-
-                routeManager(route, file.getName(), word);
+                routeManager(route, file, word);
             }
         }
     }
 
-    public void fileCreator(String fileName, String route, String word){
-        try {
-            File wordFile = new File(route);
-            wordFile.createNewFile();
-            FileWriter fr = new FileWriter(route);
-
-            Word nWord = new Word(word);
-            nWord.setReferences(fileName, 1);
-            String fWord = gson.toJson(nWord);
-
-            fr.write(fWord);
-            fr.close();
+    public void fileCreator(File file, String route, String word) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(route, true))) {
+            bw.write("{\"word\": \"" + word + "\", \"references\": [\"" + file.getName() + "\"]}");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void routeManager(String route, String fileName, String word){
-
+    public void routeManager(String route, File file, String word) {
         File wordFile = new File(route);
 
         if (wordFile.exists()) {
-            try {
-                BufferedReader br = new BufferedReader(new FileReader(route));
+            try (BufferedReader br = new BufferedReader(new FileReader(route))) {
                 StringBuilder sb = new StringBuilder();
                 String line;
 
-                while ((line = br.readLine()) != null){
+                while ((line = br.readLine()) != null) {
                     sb.append(line);
                 }
-                br.close();
 
-                Word cWord = gson.fromJson(sb.toString(), Word.class);
+                int bracketIndex = bracketTracker(sb);
+                sb.insert(bracketIndex, ", \"" + file.getName() + "\"");
 
-                if(cWord.getReferences().containsKey(fileName)){
-                    cWord.setReferences(fileName, cWord.getReferences().get(fileName)+1);
+                try (BufferedWriter bw = new BufferedWriter(new FileWriter(route))) {
+                    bw.write(sb.toString());
                 }
-                else{
-                    cWord.setReferences(fileName, 1);
-                }
-
-                String nWord = gson.toJson(cWord);
-
-                BufferedWriter bw = new BufferedWriter(new FileWriter(route));
-                bw.write(nWord);
-                bw.close();
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -77,12 +56,23 @@ public class FileIndexer {
         } else {
             File directory = wordFile.getParentFile();
 
-            if (directory.exists()) {
-                fileCreator(fileName, route, word);
-            } else{
+            if (!directory.exists()) {
                 directory.mkdirs();
-                fileCreator(fileName, route, word);
             }
+
+            fileCreator(file, route, word);
         }
+    }
+
+    private int bracketTracker(StringBuilder sb) {
+        int i = 0;
+
+        for (char element : sb.toString().toCharArray()) {
+            if (element == ']') {
+                break;
+            }
+            i++;
+        }
+        return i;
     }
 }

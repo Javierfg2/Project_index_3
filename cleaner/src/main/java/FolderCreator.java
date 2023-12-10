@@ -6,22 +6,17 @@ public class FolderCreator {
 
     private static void createFolders() {
         if (!foldersCreated) {
-            File dataLakeFolder = new File("DataLake");
-            if (!dataLakeFolder.exists()) {
-                dataLakeFolder.mkdirs();
+            File datamartFolder = new File("Datamart");
+            if (!datamartFolder.exists()) {
+                datamartFolder.mkdirs();
             }
 
-            File booksFolder = new File("DataLake/books");
-            if (!booksFolder.exists()) {
-                booksFolder.mkdirs();
-            }
-
-            File metadataFolder = new File("DataLake/metadata");
+            File metadataFolder = new File("Datamart/metadata/");
             if (!metadataFolder.exists()) {
                 metadataFolder.mkdirs();
             }
 
-            File contentFolder = new File("DataLake/content");
+            File contentFolder = new File("Datamart/content/");
             if (!contentFolder.exists()) {
                 contentFolder.mkdirs();
             }
@@ -33,9 +28,8 @@ public class FolderCreator {
     public static String getFilename(String id, String fileType) {
         createFolders();
 
-        String destination = "DataLake/";
+        String destination = "Datamart/";
         switch (fileType) {
-            case "book" -> destination += "books/";
             case "metadata" -> destination += "metadata/";
             case "content" -> destination += "content/";
         }
@@ -48,13 +42,11 @@ public class FolderCreator {
                 folder.mkdirs();
             }
         }
-
-        if (fileType.equals("metadata")){
+        if (fileType.equals("metadata")) {
             destination += id + ".json";
         } else {
             destination += id + ".txt";
         }
-
         return destination;
     }
 }

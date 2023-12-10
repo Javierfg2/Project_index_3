@@ -12,10 +12,10 @@ public class ContentExtractor implements Extractor {
             String line;
 
             while ((line = reader.readLine()) != null) {
-                if (line.contains("*** START OF THE PROJECT") && !foundFirstOccurrence) {
+                if (line.contains("*** START OF ") && !foundFirstOccurrence) {
                     foundFirstOccurrence = true;
                 } else if (foundFirstOccurrence) {
-                    if (line.contains("*** END OF THE PROJECT")) {
+                    if (line.contains("*** END OF ")) {
                         break;
                     }
                     contentWithoutMetadata.append(line).append("\n");
@@ -26,7 +26,7 @@ public class ContentExtractor implements Extractor {
             return contentWithoutMetadata.toString();
 
         } catch (IOException e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("\nError: failed to process the file " + bookFilePath + ".");
             return null;
         }
     }

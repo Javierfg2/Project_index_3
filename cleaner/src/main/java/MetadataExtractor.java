@@ -15,7 +15,7 @@ public class MetadataExtractor implements Extractor{
         String title = null;
         String author = null;
         String language = null;
-        String publicationYear = null;
+        String publicationDate = null;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -42,24 +42,56 @@ public class MetadataExtractor implements Extractor{
                             language = value;
                         }
                     }
-                } else if (line.matches("^(Original publication|Release Date):(.*)$")) {
-                    Matcher matcher = Pattern.compile("^(Original publication|Release Date):(.*)$").matcher(line);
-
+                } else if (line.matches("^(Release date):(.*)$")) {
+                    Matcher matcher = Pattern.compile("^(Release date):(.*)$").matcher(line);
                     if (matcher.find()) {
-                        String[] parts = matcher.group(2).trim().split("\\s+");
+                        String key = matcher.group(1).trim();
+                        String value = matcher.group(2).trim();
 
-                        if (parts.length > 0) {
-                            publicationYear = parts[parts.length - 1].replaceAll("[^0-9]", "");
-                            metadataFound++;
+                        while (!value.matches(".*\\d{4}\\s*\\[.*$") && (line = reader.readLine()) != null) {
+                            value += line.trim();
                         }
+                        metadataFound++;
+
+                        if ("Release date".equals(key)) {
+                            String[] parts = value.split("\\[");
+                            if (parts.length > 0) {
+                                publicationDate = parts[0].trim();
+                            }
+                        }
+                    }
+                }  else if (line.matches("^(Release Date):(.*Most)$")) {
+                    Matcher matcher = Pattern.compile("^(Release Date):(.*)\\[.*$").matcher(line);
+                    if (matcher.find()) {
+                        String key = matcher.group(1).trim();
+                        String value = matcher.group(2).trim();
+
+                        metadataFound++;
+
+                        if ("Release Date".equals(key)) {
+                            publicationDate = value;
+                        }
+                    }
+                } else if (line.matches("^(Release Date):(.*)$")) {
+                Matcher matcher = Pattern.compile("^(Release Date):(.*)\\[.*$").matcher(line);
+                if (matcher.find()) {
+                    String key = matcher.group(1).trim();
+                    String value = matcher.group(2).trim();
+
+                    metadataFound++;
+
+                    if ("Release Date".equals(key)) {
+                        publicationDate = value;
                     }
                 }
             }
+
+        }
         } catch (IOException e) {
             e.printStackTrace();
         }
         
-        Book book = new Book(title, publicationYear, author, language);
+        Book book = new Book(title, publicationDate, author, language);
 
         Gson gson = new Gson();
         return gson.toJson(book);
@@ -80,5 +112,4 @@ public class MetadataExtractor implements Extractor{
         }
     }
 }
-
 

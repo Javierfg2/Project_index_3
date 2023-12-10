@@ -15,6 +15,6 @@ public class Main {
             }
         };
 
-        timer.schedule(timertask, 0, 60 * 1000);
+        timer.schedule(timertask, 0, 1000);
     }
 }

@@ -16,29 +16,14 @@ public class FolderCreator {
                 booksFolder.mkdirs();
             }
 
-            File metadataFolder = new File("DataLake/metadata");
-            if (!metadataFolder.exists()) {
-                metadataFolder.mkdirs();
-            }
-
-            File contentFolder = new File("DataLake/content");
-            if (!contentFolder.exists()) {
-                contentFolder.mkdirs();
-            }
-
             foldersCreated = true;
         }
     }
 
-    public static String getFilename(String id, String fileType) {
+    public static String getFilename(String id) {
         createFolders();
 
-        String destination = "DataLake/";
-        switch (fileType) {
-            case "book" -> destination += "books/";
-            case "metadata" -> destination += "metadata/";
-            case "content" -> destination += "content/";
-        }
+        String destination = "DataLake/books/";
 
         for (int i = 0; i < 3 && i < id.length(); i++) {
             String digits = id.substring(0, i + 1);
@@ -49,14 +34,10 @@ public class FolderCreator {
             }
         }
 
-        if (fileType.equals("metadata")){
-            destination += id + ".json";
-        } else {
-            destination += id + ".txt";
-        }
-
+        destination += id + ".txt";
         return destination;
     }
+
 
     public static File getFile(String filename) {
         File file = new File(filename);

@@ -15,10 +15,10 @@ public class Utils {
             try (BufferedReader reader = new BufferedReader(new FileReader(book))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    if (line.contains("*** START OF THE PROJECT") && !foundFirstOccurrence) {
+                    if (line.contains("*** START OF ") && !foundFirstOccurrence) {
                         foundFirstOccurrence = true;
                     } else if (foundFirstOccurrence) {
-                        if (line.contains("*** END OF THE PROJECT")) {
+                        if (line.contains("*** END OF ")) {
                             break;
                         }
                         contentWithoutMetadata.add(line);

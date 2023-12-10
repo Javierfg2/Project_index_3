@@ -6,11 +6,11 @@ import java.util.TimerTask;
 
 public class CrawlerTimer {
     private static int currentBookId = 1;
-    public static int maxBookId = 1000;
+    public static int maxBookId = 2000;
     static Timer timer = new Timer();
 
     public static void scheduleDownloadTask() {
-        timer.scheduleAtFixedRate(new DownloadTask(), 0, 60 * 1000);
+        timer.scheduleAtFixedRate(new DownloadTask(), 0, 1000);
     }
 
     public static class DownloadTask extends TimerTask {
@@ -22,7 +22,9 @@ public class CrawlerTimer {
                 DownloadBook.downloadTextFile(txtFileUrl, Integer.toString(currentBookId));
                 currentBookId++;
             } else {
+                timer.purge();
                 timer.cancel();
+                return;
             }
 
             QueueConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://localhost:61616");
@@ -34,13 +36,13 @@ public class CrawlerTimer {
 
                 Queue indexerQueue = session.createQueue("IndexerQueue");
                 ObjectMessage indexerMessage = session.createObjectMessage();
-                indexerMessage.setObject(FolderCreator.getFilename(String.valueOf(currentBookId - 1), "book"));
+                indexerMessage.setObject(FolderCreator.getFilename(String.valueOf(currentBookId - 1)));
                 QueueSender indexerSender = session.createSender(indexerQueue);
                 indexerSender.send(indexerMessage);
 
                 Queue cleanerQueue = session.createQueue("CleanerQueue");
                 ObjectMessage cleanerMessage = session.createObjectMessage();
-                cleanerMessage.setObject(FolderCreator.getFilename(String.valueOf(currentBookId - 1), "book"));
+                cleanerMessage.setObject(FolderCreator.getFilename(String.valueOf(currentBookId - 1)));
                 QueueSender cleanerSender = session.createSender(cleanerQueue);
                 cleanerSender.send(cleanerMessage);
             } catch (JMSException e) {
