@@ -1,12 +1,12 @@
 public class Book {
-    private String title;
-    private String year;
-    private String author;
-    private String language;
+    public String title;
+    public String publicationDate;
+    public String author;
+    public String language;
 
     public Book(String title, String year, String author, String language) {
         this.title = title;
-        this.year = year;
+        this.publicationDate = year;
         this.author = author;
         this.language = language;
     }
@@ -15,8 +15,8 @@ public class Book {
         return title;
     }
 
-    public String getYear() {
-        return year;
+    public String getPublicationDate() {
+        return publicationDate;
     }
 
     public String getAuthor() {
@@ -31,7 +31,7 @@ public class Book {
     public String toString() {
         return "Book{" +
                 "title='" + title + '\'' +
-                ", year='" + year + '\'' +
+                ", publication date='" + publicationDate + '\'' +
                 ", author='" + author + '\'' +
                 ", language='" + language + '\'' +
                 '}';

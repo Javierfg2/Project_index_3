@@ -8,7 +8,7 @@ public class DownloadBook {
             try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()))) {
                 String line;
 
-                String filename = FolderCreator.getFilename(id, "book");
+                String filename = FolderCreator.getFilename(id);
 
                 try (BufferedWriter out = new BufferedWriter(new FileWriter(filename, true))) {
                     while ((line = in.readLine()) != null) {
@@ -20,7 +20,7 @@ public class DownloadBook {
             System.out.println("Book with ID " + id + " is downloaded.");
 
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Failed to download book with ID " + id + ". Moving to the next book.");
         }
     }
 }
